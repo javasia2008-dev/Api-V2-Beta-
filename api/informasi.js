@@ -1,27 +1,33 @@
 const { searchAnime, getAnimeInfo } = require('./_lib/scraper');
-const { setCors, requireApiKey } = require('./_lib/auth');
+const { requireApiKey } = require('./_lib/auth');
+const { ensureGet, sendJson } = require('./_lib/http');
 
 module.exports = async (req, res) => {
-  setCors(res);
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  if (!requireApiKey(req, res)) return;
+  const methodCheck = ensureGet(req, res);
+  if (methodCheck.done) {
+    if (methodCheck.status === 204) return res.status(204).end();
+    return sendJson(res, methodCheck.status, methodCheck.body);
+  }
+
+  const auth = requireApiKey(req);
+  if (!auth.ok) {
+    return sendJson(res, auth.status, auth.body);
+  }
 
   try {
     const judul = (req.query.judul || req.query.query || '').toString().trim();
 
     if (!judul) {
-      return res.status(400).json({
+      return sendJson(res, 400, {
         success: false,
-        endpoint: 'informasi',
         error: 'Parameter judul wajib diisi.',
         example: '/api/informasi?judul=naruto'
       });
     }
 
     const hasilCari = await searchAnime(judul, 1);
-
     if (hasilCari.error) {
-      return res.status(200).json({
+      return sendJson(res, 200, {
         success: false,
         endpoint: 'informasi',
         judul,
@@ -30,7 +36,7 @@ module.exports = async (req, res) => {
     }
 
     if (!hasilCari.results || hasilCari.results.length === 0) {
-      return res.status(200).json({
+      return sendJson(res, 200, {
         success: false,
         endpoint: 'informasi',
         judul,
@@ -40,11 +46,9 @@ module.exports = async (req, res) => {
     }
 
     const animePertama = hasilCari.results[0];
-    const detail = animePertama && animePertama.url
-      ? await getAnimeInfo(animePertama.url)
-      : { error: 'URL detail tidak ditemukan.' };
+    const detail = animePertama.url ? await getAnimeInfo(animePertama.url) : { error: 'URL detail tidak ditemukan.' };
 
-    return res.status(200).json({
+    return sendJson(res, 200, {
       success: true,
       endpoint: 'informasi',
       judul,
@@ -55,7 +59,7 @@ module.exports = async (req, res) => {
       }
     });
   } catch (error) {
-    return res.status(500).json({
+    return sendJson(res, 500, {
       success: false,
       endpoint: 'informasi',
       error: error.message

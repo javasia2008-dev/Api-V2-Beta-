@@ -1,8 +1,16 @@
 {
-  "name": "vercel-api-key-project",
-  "private": true,
+  "name": "api-v2-beta",
   "version": "1.0.0",
-  "description": "API project with API key protection for Vercel",
-  "main": "index.js",
-  "license": "MIT"
+  "private": true,
+  "description": "Vercel API for Samehadaku V2",
+  "main": "api/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "cloudscraper": "^4.6.0",
+    "readline-sync": "^1.4.10",
+    "axios": "^1.18.1"
+  }
 }

@@ -1,32 +1,41 @@
 const { getAnimeInfo } = require('./_lib/scraper');
-const { setCors, requireApiKey } = require('./_lib/auth');
+const { requireApiKey } = require('./_lib/auth');
+const { ensureGet, sendJson } = require('./_lib/http');
 
 module.exports = async (req, res) => {
-  setCors(res);
-  if (req.method === 'OPTIONS') return res.status(204).end();
-  if (!requireApiKey(req, res)) return;
+  const methodCheck = ensureGet(req, res);
+  if (methodCheck.done) {
+    if (methodCheck.status === 204) return res.status(204).end();
+    return sendJson(res, methodCheck.status, methodCheck.body);
+  }
+
+  const auth = requireApiKey(req);
+  if (!auth.ok) {
+    return sendJson(res, auth.status, auth.body);
+  }
 
   try {
+    
     const url = (req.query.url || '').toString().trim();
 
     if (!url) {
-      return res.status(400).json({
+      return sendJson(res, 400, {
         success: false,
-        endpoint: 'detail',
         error: 'Parameter url wajib diisi.',
         example: '/api/detail?url=https://...'
       });
     }
 
     const data = await getAnimeInfo(url);
-    return res.status(200).json({
+    return sendJson(res, 200, {
       success: true,
       endpoint: 'detail',
       url,
       data
     });
+
   } catch (error) {
-    return res.status(500).json({
+    return sendJson(res, 500, {
       success: false,
       endpoint: 'detail',
       error: error.message

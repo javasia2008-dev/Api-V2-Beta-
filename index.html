@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>API V2 Beta</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin:0; font-family: Arial, sans-serif; background:#0f172a; color:#e2e8f0; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 32px 18px 56px; }
+    .card { background:#111827; border:1px solid #243244; border-radius:18px; padding:24px; box-shadow:0 12px 40px rgba(0,0,0,.28); }
+    h1 { margin:0 0 8px; font-size: 34px; }
+    p { line-height:1.6; color:#cbd5e1; }
+    code, pre { background:#0b1220; border:1px solid #243244; border-radius:12px; padding:12px 14px; display:block; overflow:auto; }
+    a { color:#7dd3fc; text-decoration:none; }
+    ul { padding-left: 20px; }
+    .grid { display:grid; gap:14px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top:18px; }
+    .box { background:#0b1220; border:1px solid #243244; border-radius:14px; padding:16px; }
+    .muted { color:#94a3b8; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>API V2 Beta</h1>
+      <p>Project API anime dengan proteksi <b>x-api-key</b>. Gunakan endpoint di bawah untuk testing.</p>
+
+      <div class="grid">
+        <div class="box">
+          <b>Search</b>
+          <pre>/api/search?query=naruto&apikey=YOUR_KEY</pre>
+        </div>
+        <div class="box">
+          <b>Informasi</b>
+          <pre>/api/informasi?judul=naruto&apikey=YOUR_KEY</pre>
+        </div>
+        <div class="box">
+          <b>Detail</b>
+          <pre>/api/detail?url=URL_ANIME&apikey=YOUR_KEY</pre>
+        </div>
+        <div class="box">
+          <b>Top 10</b>
+          <pre>/api/top-10?apikey=YOUR_KEY</pre>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:18px;">Header utama: <code>x-api-key: YOUR_KEY</code></p>
+    </div>
+  </div>
+</body>
+</html>

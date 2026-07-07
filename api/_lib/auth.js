@@ -1,51 +1,66 @@
-function setCors(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
-}
-
 function normalizeKeys(value) {
-  return String(value || '')
+  if (!value) return [];
+  return String(value)
     .split(',')
-    .map(v => v.trim())
+    .map((v) => v.trim())
     .filter(Boolean);
 }
 
 function getExpectedKeys() {
-  const keys = normalizeKeys(process.env.API_KEYS || process.env.API_KEY);
-  return keys;
+  const keys = [
+    ...normalizeKeys(process.env.API_KEY),
+    ...normalizeKeys(process.env.API_KEYS)
+  ];
+  return [...new Set(keys)];
 }
 
-function getProvidedKey(req) {
-  const headerKey = req.headers['x-api-key'] || req.headers['X-API-Key'];
-  const queryKey = req.query.apikey || req.query.api_key || req.query.key;
+function readProvidedKey(req) {
+  const headerKey = req.headers['x-api-key'];
+  const queryKey = req.query.apikey || req.query.apiKey;
   return String(headerKey || queryKey || '').trim();
 }
 
-function requireApiKey(req, res) {
+function requireApiKey(req) {
   const expectedKeys = getExpectedKeys();
+  const providedKey = readProvidedKey(req);
 
   if (expectedKeys.length === 0) {
-    return true;
+    return {
+      ok: false,
+      status: 500,
+      body: {
+        success: false,
+        error: 'API key belum dikonfigurasi di server',
+        hint: 'Tambahkan environment variable API_KEY di Vercel'
+      }
+    };
   }
 
-  const provided = getProvidedKey(req);
-
-  if (!provided || !expectedKeys.includes(provided)) {
-    res.status(401).json({
-      success: false,
-      error: 'Invalid API Key',
-      hint: 'Kirim via header x-api-key atau query apikey'
-    });
-    return false;
+  if (!providedKey) {
+    return {
+      ok: false,
+      status: 401,
+      body: {
+        success: false,
+        error: 'Invalid API Key',
+        hint: 'Kirim via header x-api-key atau query apikey'
+      }
+    };
   }
 
-  return true;
+  if (!expectedKeys.includes(providedKey)) {
+    return {
+      ok: false,
+      status: 401,
+      body: {
+        success: false,
+        error: 'Invalid API Key',
+        hint: 'Kirim via header x-api-key atau query apikey'
+      }
+    };
+  }
+
+  return { ok: true, key: providedKey };
 }
 
-module.exports = {
-  setCors,
-  requireApiKey,
-  getProvidedKey,
-  getExpectedKeys
-};
+module.exports = { requireApiKey };
