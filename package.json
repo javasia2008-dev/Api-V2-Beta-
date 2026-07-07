@@ -1,0 +1,8 @@
+{
+  "name": "vercel-api-key-project",
+  "private": true,
+  "version": "1.0.0",
+  "description": "API project with API key protection for Vercel",
+  "main": "index.js",
+  "license": "MIT"
+}
